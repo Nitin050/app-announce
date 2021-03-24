@@ -10,10 +10,21 @@ import * as notes from './controllers/note.controller';
 import * as drafts from './controllers/draft.controller';
 import * as ann_pages from './controllers/ann_page.controller';
 
+// deploy
+const port = process.env.PORT;
+const host = '0.0.0.0';
+const mongoURL = "mongodb+srv://1234:1234@cluster-announce.qotos.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+
+// development
+// const port = 4000;
+// const host = 'localhost';
+// const mongoURL = 'mongodb://localhost:27017/ann';
+
 const app = express();
+app.set('trust proxy', true);
 
 var corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: ['https://ann05.vercel.app', 'http://localhost:3000'],
     optionsSuccessStatus: 200,
     credentials: true,
     exposedHeaders: ["set-cookie"],
@@ -26,6 +37,7 @@ app.use(bodyParser.json())
 app.use(
   cookieSession({
     signed: false,
+    sameSite: 'none'
     // secure: true
   })
 );
@@ -33,13 +45,6 @@ app.use(currentUser);
 
 
 // mongoose.Promise = global.Promise;
-
-
-
-app.get('/', (req, res) => {
-    res.json({"message": "hello wold"});
-});
-
 // require('./app/routes/note.routes.js')(app);
 
 // app.post('/notes', notes.create);
@@ -78,10 +83,10 @@ const start = async () => {
     // }
 
     try {
-        await mongoose.connect('mongodb://localhost:27017/ann', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true
+        await mongoose.connect(mongoURL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useCreateIndex: true
         })
         console.log('app connected to MongoDb');
     } catch (err) {
@@ -89,8 +94,8 @@ const start = async () => {
         console.error(err);
     }
 
-    app.listen(4000, () => {
-        console.log('app listening on port 4000');
+    app.listen(port as any, host, () => {
+        console.log('app listening on port ' + port);
     });
 };
 
